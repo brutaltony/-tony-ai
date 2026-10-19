@@ -72,6 +72,7 @@ const form = document.getElementById("form");
 const input = document.getElementById("message");
 const button = form.querySelector("button");
 const history = [];
+let previousInteractionId = null;
 form.addEventListener("submit", async function(e) {
   e.preventDefault();
 
@@ -102,7 +103,7 @@ form.addEventListener("submit", async function(e) {
       },
       body: JSON.stringify({
   message: text,
-  history: history
+  previousInteractionId: previousInteractionId
 })
 
     if (!response.ok) {
@@ -147,6 +148,12 @@ form.addEventListener("submit", async function(e) {
 
       try {
         const event = JSON.parse(raw);
+        if (
+  event.event_type === "interaction.created" &&
+  event.interaction?.id
+) {
+  previousInteractionId = event.interaction.id;
+}
 
         if (
           event.event_type === "step.delta" &&
