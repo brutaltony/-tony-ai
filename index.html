@@ -71,7 +71,7 @@ const chat = document.getElementById("chat");
 const form = document.getElementById("form");
 const input = document.getElementById("message");
 const button = form.querySelector("button");
-
+const history = [];
 form.addEventListener("submit", async function(e) {
   e.preventDefault();
 
