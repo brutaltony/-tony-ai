@@ -70,27 +70,57 @@ button{
 const chat = document.getElementById("chat");
 const form = document.getElementById("form");
 const input = document.getElementById("message");
+const button = form.querySelector("button");
 
-form.addEventListener("submit", function(e){
+form.addEventListener("submit", async function(e) {
   e.preventDefault();
 
   const text = input.value.trim();
-  if(!text) return;
+  if (!text) return;
 
   const user = document.createElement("div");
   user.className = "msg user";
   user.textContent = text;
   chat.appendChild(user);
 
+  input.value = "";
+  input.disabled = true;
+  button.disabled = true;
+
   const bot = document.createElement("div");
   bot.className = "msg bot";
-  bot.textContent =
-    "I received your message! My AI brain isn't connected yet. 🤖";
+  bot.textContent = "Tony is thinking... 🤖";
   chat.appendChild(bot);
 
-  input.value = "";
   chat.scrollTop = chat.scrollHeight;
+
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ message: text })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Request failed");
+    }
+
+    bot.textContent = data.reply || "No reply received.";
+  } catch (error) {
+    console.error("Tony AI error:", error);
+    bot.textContent = "Sorry, Tony couldn't connect. Please try again.";
+  } finally {
+    input.disabled = false;
+    button.disabled = false;
+    input.focus();
+    chat.scrollTop = chat.scrollHeight;
+  }
 });
 </script>
+
 </body>
 </html>
