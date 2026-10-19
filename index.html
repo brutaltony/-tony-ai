@@ -105,15 +105,14 @@ form.addEventListener("submit", async function(e) {
 
     const data = await response.json();
 
-if (!response.ok) {
-bot.textContent =
-data.details?.error?.message ||
-data.error ||
-“Request failed. Please try again.”;
-} else {
-bot.textContent =
-data.reply || “No reply received.”;
-}
+    if (!response.ok) {
+      bot.textContent =
+        data.details?.error?.message ||
+        data.error ||
+        "Request failed. Please try again.";
+    } else {
+      bot.textContent = data.reply || "No reply received.";
+    }
   } catch (error) {
     console.error("Tony AI error:", error);
     bot.textContent = "Sorry, Tony couldn't connect. Please try again.";
@@ -125,6 +124,7 @@ data.reply || “No reply received.”;
   }
 });
 </script>
+
 
 </body>
 </html>
