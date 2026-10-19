@@ -47,12 +47,13 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("Gemini API error:", data);
+console.error(“Gemini API error:”, response.status, data);
 
-      return res.status(502).json({
-        error: "Tony AI could not reach Gemini. Please try again."
-      });
-    }
+return res.status(response.status).json({
+error: “Gemini API error”,
+details: data
+});
+}
 
     const reply =
       data.candidates?.[0]?.content?.parts
