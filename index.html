@@ -103,19 +103,92 @@ form.addEventListener("submit", async function(e) {
       body: JSON.stringify({ message: text })
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      bot.textContent =
-        data.details?.error?.message ||
-        data.error ||
-        "Request failed. Please try again.";
-    } else {
-      bot.textContent = data.reply || "No reply received.";
+      const raw = await response.text();
+      let error = "Tony couldn't connect. Please try again.";
+
+      try {
+        const data = JSON.parse(raw);
+        error = data.details?.error?.message ||
+                data.details ||
+                data.error ||
+                error;
+        if (typeof error !== "string") {
+          error = JSON.stringify(error);
+        }
+      } catch {}
+
+      bot.textContent = error;
+      return;
     }
+
+    if (!response.body) {
+      bot.textContent = "No response stream received.";
+      return;
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let receivedText = "";
+
+    function processEvent(block) {
+      const lines = block.split(/\r?\n/);
+      const dataLines = lines
+        .filter(line => line.startsWith("data:"))
+        .map(line => line.slice(5).trim());
+
+      if (!dataLines.length) return;
+
+      const raw = dataLines.join("\n");
+      if (raw === "[DONE]") return;
+
+      try {
+        const event = JSON.parse(raw);
+
+        if (
+          event.event_type === "step.delta" &&
+          event.delta?.type === "text"
+        ) {
+          receivedText += event.delta.text || "";
+          bot.textContent = receivedText;
+          chat.scrollTop = chat.scrollHeight;
+        }
+      } catch (error) {
+        console.error("Stream parsing error:", error);
+      }
+    }
+
+    while (true) {
+      const { value, done } = await reader.read();
+
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      const blocks = buffer.split(/\r?\n\r?\n/);
+      buffer = blocks.pop() || "";
+
+      for (const block of blocks) {
+        processEvent(block);
+      }
+    }
+
+    buffer += decoder.decode();
+
+    if (buffer.trim()) {
+      processEvent(buffer);
+    }
+
+    if (!receivedText) {
+      bot.textContent =
+        "Tony couldn't generate a reply. Please try again.";
+    }
+
   } catch (error) {
     console.error("Tony AI error:", error);
-    bot.textContent = "Sorry, Tony couldn't connect. Please try again.";
+    bot.textContent =
+      "Connection interrupted. Please try again.";
   } finally {
     input.disabled = false;
     button.disabled = false;
