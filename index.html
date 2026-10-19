@@ -1,212 +1,508 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#080b14">
-<title>Tony AI</title>
+  <meta charset="UTF-8">
 
-<style>
-*{box-sizing:border-box}
-body{
-  margin:0;background:#080b14;color:white;
-  font-family:Arial,sans-serif;
-}
-header{
-  padding:22px;text-align:center;
-  border-bottom:1px solid #242a40;
-}
-header h1{margin:0;color:#7c83ff}
-header p{color:#9299ad;font-size:13px}
-#chat{
-  padding:18px;height:65vh;overflow-y:auto;
-}
-.msg{
-  padding:13px;margin:12px 0;
-  border-radius:14px;max-width:85%;
-  line-height:1.5;overflow-wrap:anywhere;
-}
-.bot{background:#171d30}
-.user{background:#4545b5;margin-left:auto}
-form{
-  position:fixed;bottom:0;left:0;width:100%;
-  display:flex;gap:8px;padding:14px;
-  background:#080b14;border-top:1px solid #242a40;
-}
-input{
-  flex:1;min-width:0;padding:14px;
-  border:1px solid #343b55;border-radius:12px;
-  background:#171d30;color:white;font-size:16px;
-}
-button{
-  padding:12px 16px;border:0;border-radius:12px;
-  background:#747bff;color:white;font-weight:bold;
-}
-</style>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="theme-color"
+    content="#080b14"
+  >
+
+  <title>Tony AI</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #080b14;
+      color: #f5f7ff;
+      font-family: -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 850px;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 4px 18px;
+      border-bottom: 1px solid #202638;
+    }
+
+    .logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(
+        135deg,
+        #735cff,
+        #19c9ff
+      );
+      font-size: 23px;
+      font-weight: 800;
+      color: white;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0.3px;
+    }
+
+    .brand p {
+      margin: 5px 0 0;
+      color: #8e9ab4;
+      font-size: 12px;
+    }
+
+    .status {
+      margin-left: auto;
+      color: #65e6a2;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px 2px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scroll-behavior: smooth;
+    }
+
+    .welcome {
+      text-align: center;
+      margin: auto 0;
+      padding: 25px 10px;
+    }
+
+    .welcome .big-logo {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .welcome h2 {
+      font-size: 27px;
+      margin: 0 0 10px;
+    }
+
+    .welcome p {
+      max-width: 380px;
+      margin: 0 auto;
+      color: #98a4bd;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .msg {
+      max-width: 88%;
+      padding: 13px 16px;
+      border-radius: 17px;
+      line-height: 1.65;
+      font-size: 15px;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      background: #6654e8;
+      color: white;
+      border-bottom-right-radius: 5px;
+    }
+
+    .msg.bot {
+      align-self: flex-start;
+      background: #141b2b;
+      border: 1px solid #273149;
+      color: #edf1ff;
+      border-bottom-left-radius: 5px;
+    }
+
+    .msg.error {
+      color: #ffb3b3;
+      border-color: #633b49;
+    }
+
+    .composer {
+      padding-top: 12px;
+      border-top: 1px solid #202638;
+    }
+
+    form {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #111726;
+      border: 1px solid #2b344b;
+      border-radius: 18px;
+      padding: 8px;
+    }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: white;
+      padding: 12px 8px;
+      font-size: 16px;
+    }
+
+    input::placeholder {
+      color: #75819b;
+    }
+
+    input:disabled {
+      opacity: 0.7;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(
+        135deg,
+        #735cff,
+        #397cff
+      );
+      color: white;
+      font-weight: 700;
+      padding: 12px 17px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .note {
+      text-align: center;
+      font-size: 11px;
+      color: #73809b;
+      margin: 12px 0 4px;
+    }
+
+    @media (max-width: 480px) {
+      .app {
+        padding: 10px;
+      }
+
+      .msg {
+        max-width: 94%;
+        font-size: 14px;
+      }
+
+      .welcome h2 {
+        font-size: 24px;
+      }
+
+      button {
+        padding: 12px;
+      }
+    }
+  </style>
 </head>
 
 <body>
-<header>
-  <h1>⚡ TONY AI</h1>
-  <p>Your AI. Your World.</p>
-</header>
+  <main class="app">
 
-<div id="chat">
-  <div class="msg bot">
-    Welcome to Tony AI! 👋<br>
-    I'm your personal assistant.
-    What shall we explore today?
-  </div>
-</div>
+    <header>
+      <div class="logo">T</div>
 
-<form id="form">
-  <input id="message"
-    placeholder="Message Tony AI..."
-    autocomplete="off" required>
-  <button type="submit">Send</button>
-</form>
+      <div class="brand">
+        <h1>Tony AI</h1>
+        <p>Your intelligent assistant</p>
+      </div>
 
-<script>
-const chat = document.getElementById("chat");
-const form = document.getElementById("form");
-const input = document.getElementById("message");
-const button = form.querySelector("button");
-const history = [];
-let previousInteractionId = null;
-form.addEventListener("submit", async function(e) {
-  e.preventDefault();
+      <div class="status">● Online</div>
+    </header>
 
-  const text = input.value.trim();
-  if (!text) return;
+    <section id="chat" aria-live="polite">
+      <div class="welcome" id="welcome">
+        <div class="big-logo">🤖</div>
 
-  const user = document.createElement("div");
-  user.className = "msg user";
-  user.textContent = text;
-  chat.appendChild(user);
+        <h2>Welcome to Tony AI</h2>
 
-  input.value = "";
-  input.disabled = true;
-  button.disabled = true;
+        <p>
+          Ask questions, learn new things, explore ideas,
+          and let Tony help you get things done.
+        </p>
+      </div>
+    </section>
 
-  const bot = document.createElement("div");
-  bot.className = "msg bot";
-  bot.textContent = "Tony is thinking... 🤖";
-  chat.appendChild(bot);
+    <div class="composer">
+      <form id="form">
+        <input
+          id="message"
+          type="text"
+          placeholder="Message Tony AI..."
+          autocomplete="off"
+          aria-label="Your message"
+          required
+        >
 
-  chat.scrollTop = chat.scrollHeight;
+        <button id="send" type="submit">
+          Send
+        </button>
+      </form>
 
-  try {
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-  message: text,
-  previousInteractionId: previousInteractionId
-})
+      <p class="note">
+        Tony AI can make mistakes. Check important information.
+      </p>
+    </div>
 
-    if (!response.ok) {
-      const raw = await response.text();
-      let error = "Tony couldn't connect. Please try again.";
+  </main>
 
-      try {
-        const data = JSON.parse(raw);
-        error = data.details?.error?.message ||
-                data.details ||
-                data.error ||
-                error;
-        if (typeof error !== "string") {
-          error = JSON.stringify(error);
-        }
-      } catch {}
+  <script>
+    const chat = document.getElementById("chat");
+    const form = document.getElementById("form");
+    const input = document.getElementById("message");
+    const button = document.getElementById("send");
+    const welcome = document.getElementById("welcome");
 
-      bot.textContent = error;
-      return;
+    // Memory lasts for the current page session.
+    let previousInteractionId = null;
+
+    function scrollToBottom() {
+      chat.scrollTop = chat.scrollHeight;
     }
 
-    if (!response.body) {
-      bot.textContent = "No response stream received.";
-      return;
+    function addMessage(text, role) {
+      const element = document.createElement("div");
+
+      element.className = "msg " + role;
+      element.textContent = text;
+
+      chat.appendChild(element);
+
+      scrollToBottom();
+
+      return element;
     }
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = "";
-    let receivedText = "";
+    function showError(element, message) {
+      element.classList.add("error");
+      element.textContent = message;
+    }
 
-    function processEvent(block) {
-      const lines = block.split(/\r?\n/);
-      const dataLines = lines
-        .filter(line => line.startsWith("data:"))
-        .map(line => line.slice(5).trim());
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
 
-      if (!dataLines.length) return;
+      const text = input.value.trim();
 
-      const raw = dataLines.join("\n");
-      if (raw === "[DONE]") return;
+      if (!text || button.disabled) {
+        return;
+      }
+
+      if (welcome) {
+        welcome.remove();
+      }
+
+      // Display the user's message immediately.
+      addMessage(text, "user");
+
+      input.value = "";
+      input.disabled = true;
+      button.disabled = true;
+      button.textContent = "...";
+
+      const bot = addMessage("Tony is thinking...", "bot");
+
+      let receivedText = "";
+      let streamFailed = false;
 
       try {
-        const event = JSON.parse(raw);
-        if (
-  event.event_type === "interaction.created" &&
-  event.interaction?.id
-) {
-  previousInteractionId = event.interaction.id;
-}
+        const response = await fetch("/api/chat", {
+          method: "POST",
 
-        if (
-          event.event_type === "step.delta" &&
-          event.delta?.type === "text"
-        ) {
-          receivedText += event.delta.text || "";
-          bot.textContent = receivedText;
-          chat.scrollTop = chat.scrollHeight;
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+            message: text,
+            previousInteractionId:
+              previousInteractionId
+          })
+        });
+
+        if (!response.ok) {
+          const raw = await response.text();
+
+          let errorMessage =
+            "Tony couldn't connect. Please try again.";
+
+          try {
+            const data = JSON.parse(raw);
+
+            errorMessage =
+              data.details?.error?.message ||
+              data.details ||
+              data.error ||
+              errorMessage;
+
+            if (typeof errorMessage !== "string") {
+              errorMessage = JSON.stringify(errorMessage);
+            }
+          } catch {
+            // Keep the default error message.
+          }
+
+          showError(bot, errorMessage);
+          streamFailed = true;
+          return;
         }
+
+        if (!response.body) {
+          showError(bot, "No response stream received.");
+          streamFailed = true;
+          return;
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        let buffer = "";
+
+        function processEvent(block) {
+          const lines = block.split(/\r?\n/);
+
+          const dataLines = lines
+            .filter(line => line.startsWith("data:"))
+            .map(line => line.slice(5).trimStart());
+
+          if (dataLines.length === 0) {
+            return;
+          }
+
+          const raw = dataLines.join("\n").trim();
+
+          if (!raw || raw === "[DONE]") {
+            return;
+          }
+
+          let data;
+
+          try {
+            data = JSON.parse(raw);
+          } catch {
+            return;
+          }
+
+          const type = data.event_type || data.type;
+
+          // Save the ID when the interaction is complete.
+          if (
+            type === "interaction.completed" &&
+            data.interaction?.id
+          ) {
+            previousInteractionId = data.interaction.id;
+          }
+
+          // Display the answer as text arrives.
+          if (
+            type === "step.delta" &&
+            data.delta?.type === "text"
+          ) {
+            if (!receivedText) {
+              bot.textContent = "";
+            }
+
+            receivedText += data.delta.text || "";
+            bot.textContent = receivedText;
+
+            scrollToBottom();
+          }
+
+          if (type === "error") {
+            const message =
+              data.error?.message ||
+              "Gemini encountered an error.";
+
+            showError(bot, message);
+            streamFailed = true;
+          }
+        }
+
+        while (true) {
+          const result = await reader.read();
+
+          if (result.done) {
+            break;
+          }
+
+          buffer += decoder.decode(
+            result.value,
+            { stream: true }
+          );
+
+          const blocks = buffer.split(/\r?\n\r?\n/);
+
+          buffer = blocks.pop() || "";
+
+          for (const block of blocks) {
+            processEvent(block);
+          }
+        }
+
+        buffer += decoder.decode();
+
+        if (buffer.trim()) {
+          processEvent(buffer);
+        }
+
+        if (!receivedText && !streamFailed) {
+          showError(
+            bot,
+            "Tony returned no text. Please try again."
+          );
+        }
+
       } catch (error) {
-        console.error("Stream parsing error:", error);
+        console.error("Tony AI error:", error);
+
+        showError(
+          bot,
+          "Connection interrupted. Please try again."
+        );
+
+      } finally {
+        input.disabled = false;
+        button.disabled = false;
+        button.textContent = "Send";
+        input.focus();
+
+        scrollToBottom();
       }
-    }
-
-    while (true) {
-      const { value, done } = await reader.read();
-
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-
-      const blocks = buffer.split(/\r?\n\r?\n/);
-      buffer = blocks.pop() || "";
-
-      for (const block of blocks) {
-        processEvent(block);
-      }
-    }
-
-    buffer += decoder.decode();
-
-    if (buffer.trim()) {
-      processEvent(buffer);
-    }
-
-    if (!receivedText) {
-      bot.textContent =
-        "Tony couldn't generate a reply. Please try again.";
-    }
-
-  } catch (error) {
-    console.error("Tony AI error:", error);
-    bot.textContent =
-      "Connection interrupted. Please try again.";
-  } finally {
-    input.disabled = false;
-    button.disabled = false;
-    input.focus();
-    chat.scrollTop = chat.scrollHeight;
-  }
-});
-</script>
-
+    });
+  </script>
 
 </body>
 </html>
