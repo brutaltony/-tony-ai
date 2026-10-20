@@ -440,14 +440,10 @@ const form = document.getElementById("form");
 const input = document.getElementById("message");
 const button = document.getElementById("send");
 const welcome = document.getElementById("welcome");
-
-// Keeps conversation context while this page remains open.
 let previousInteractionId = null;
-
 function scrollToBottom() {
   chat.scrollTop = chat.scrollHeight;
 }
-
 function addMessage(text, role) {
   const element = document.createElement("div");
   element.className = "msg " + role;
@@ -456,38 +452,76 @@ function addMessage(text, role) {
   scrollToBottom();
   return element;
 }
-
 function showError(element, message) {
+  element.classList.remove("typing");
   element.classList.add("error");
   element.textContent = message;
 }
-
 form.addEventListener("submit", async function(event) {
   event.preventDefault();
-
   const text = input.value.trim();
   if (!text || button.disabled) return;
-
   if (welcome && welcome.isConnected) welcome.remove();
-
   addMessage(text, "user");
-
   input.value = "";
   input.disabled = true;
   button.disabled = true;
   button.textContent = "…";
-
   const bot = addMessage("Tony is thinking...", "bot");
-
-  let receivedText = "";
-  let typingBuffer = "";
-let typingQueue = [];
-let displayedText = "";
-let typingActive = false;
-let displayedLength = 0;
-let typingTimer = null;
+    let receivedText = "";
+  let displayedLength = 0;
+  let typingActive = false;
+  let streamFinished = false;
   let streamFailed = false;
+  let typingTimer = null;
 
+  function runTyping() {
+    if (typingActive || streamFailed) return;
+
+    typingActive = true;
+    bot.classList.add("typing");
+
+    function showNextWord() {
+      const remaining = receivedText.slice(displayedLength);
+
+      if (!remaining) {
+        if (streamFinished) {
+          typingActive = false;
+          bot.classList.remove("typing");
+          return;
+        }
+
+        typingActive = false;
+        return;
+      }
+
+      // Reveal complete words as they arrive.
+      const match = remaining.match(/^\s*\S+\s+/);
+
+      if (match) {
+        bot.textContent += match[0];
+        displayedLength += match[0].length;
+      } else if (streamFinished) {
+        // Show the final word even if it has no trailing space.
+        bot.textContent += remaining;
+        displayedLength = receivedText.length;
+      } else {
+        typingActive = false;
+        return;
+      }
+
+      scrollToBottom();
+
+      if (displayedLength < receivedText.length || !streamFinished) {
+        typingTimer = setTimeout(showNextWord, 100);
+      } else {
+        typingActive = false;
+        bot.classList.remove("typing");
+      }
+    }
+
+    showNextWord();
+  }
   try {
     const response = await fetch("/api/chat", {
       method: "POST",
@@ -497,11 +531,9 @@ let typingTimer = null;
         previousInteractionId: previousInteractionId
       })
     });
-
     if (!response.ok) {
       const raw = await response.text();
       let errorMessage = "Tony couldn't connect. Please try again.";
-
       try {
         const data = JSON.parse(raw);
         errorMessage =
@@ -509,66 +541,54 @@ let typingTimer = null;
           data.details ||
           data.error ||
           errorMessage;
-
         if (typeof errorMessage !== "string") {
           errorMessage = JSON.stringify(errorMessage);
         }
       } catch {}
-
       showError(bot, errorMessage);
       streamFailed = true;
       return;
     }
-
     if (!response.body) {
       showError(bot, "No response stream received.");
       streamFailed = true;
       return;
     }
-
+    bot.textContent = "";
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
-
     function processEvent(block) {
       const lines = block.split(/\r?\n/);
       const dataLines = lines
         .filter(line => line.startsWith("data:"))
         .map(line => line.slice(5).trimStart());
-
       if (!dataLines.length) return;
-
       const raw = dataLines.join("\n").trim();
       if (!raw || raw === "[DONE]") return;
-
       let data;
-
       try {
         data = JSON.parse(raw);
       } catch {
         return;
       }
-
       const type = data.event_type || data.type;
-
       if (
         type === "interaction.completed" &&
         data.interaction?.id
       ) {
         previousInteractionId = data.interaction.id;
       }
-
       if (
         type === "step.delta" &&
         data.delta?.type === "text"
       ) {
-        if (!receivedText) bot.textContent = "";
-        receivedText += data.delta.text || "";
-        bot.textContent = receivedText;
-bot.classList.add("typing");
-        scrollToBottom();
+        const chunk = data.delta.text || "";
+        receivedText += chunk;
+        if (chunk) {
+          runTyping();
+        }
       }
-
       if (type === "error") {
         showError(
           bot,
@@ -577,38 +597,32 @@ bot.classList.add("typing");
         streamFailed = true;
       }
     }
-
     while (true) {
       const result = await reader.read();
       if (result.done) break;
-
       buffer += decoder.decode(result.value, { stream: true });
-
       const blocks = buffer.split(/\r?\n\r?\n/);
       buffer = blocks.pop() || "";
-
       for (const block of blocks) {
         processEvent(block);
       }
     }
-
     buffer += decoder.decode();
-
     if (buffer.trim()) {
       processEvent(buffer);
     }
+  streamFinished = true;
+runTyping();
 
-    if (!receivedText && !streamFailed) {
-      showError(bot, "Tony returned no text. Please try again.");
-    }
-
+if (!receivedText && !streamFailed) {
+  showError(bot, "Tony returned no text. Please try again.");
+}
   } catch (error) {
     console.error("Tony AI error:", error);
     showError(bot, "Connection interrupted. Please try again.");
   } finally {
     input.disabled = false;
     button.disabled = false;
-    bot.classList.remove("typing");
     button.textContent = "↑";
     input.focus();
     scrollToBottom();
