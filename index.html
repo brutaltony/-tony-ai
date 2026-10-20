@@ -5,7 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#070611">
 <title>Tony AI | Beyond Intelligence</title>
+.msg.typing {
+animation: typingGlow 1s ease-in-out infinite alternate;
+}
 
+@keyframes typingGlow {
+from {
+box-shadow: 0 0 5px rgba(168, 85, 247, 0.15);
+}
+to {
+box-shadow: 0 0 16px rgba(56, 189, 248, 0.45);
+}
+}
 <style>
 :root {
   --bg: #070611;
@@ -559,6 +570,7 @@ form.addEventListener("submit", async function(event) {
         if (!receivedText) bot.textContent = "";
         receivedText += data.delta.text || "";
         bot.textContent = receivedText;
+bot.classList.add("typing");
         scrollToBottom();
       }
 
@@ -601,6 +613,7 @@ form.addEventListener("submit", async function(event) {
   } finally {
     input.disabled = false;
     button.disabled = false;
+    bot.classList.remove("typing");
     button.textContent = "↑";
     input.focus();
     scrollToBottom();
