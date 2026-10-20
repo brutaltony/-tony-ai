@@ -480,6 +480,12 @@ form.addEventListener("submit", async function(event) {
   const bot = addMessage("Tony is thinking...", "bot");
 
   let receivedText = "";
+  let typingBuffer = "";
+let typingQueue = [];
+let displayedText = "";
+let typingActive = false;
+let displayedLength = 0;
+let typingTimer = null;
   let streamFailed = false;
 
   try {
