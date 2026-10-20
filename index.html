@@ -613,6 +613,16 @@ form.addEventListener("submit", async function(event) {
     }
   streamFinished = true;
 runTyping();
+if ("speechSynthesis" in window && receivedText.trim()) {
+  window.speechSynthesis.cancel();
+
+  const voice = new SpeechSynthesisUtterance(receivedText);
+  voice.lang = "en-US";
+  voice.rate = 1;
+  voice.pitch = 1;
+
+  window.speechSynthesis.speak(voice);
+}
 
 if (!receivedText && !streamFailed) {
   showError(bot, "Tony returned no text. Please try again.");
